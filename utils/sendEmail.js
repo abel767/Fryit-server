@@ -1,42 +1,30 @@
-const nodemailer = require('nodemailer')
-const {google} = require('googlepis')
+const nodemailer = require('nodemailer');
 
-// 0auth2 client setup (recommended for gmail) 
-const oAuth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_0AUTH_CLIENT_ID,
-    process.env.GOOGLE_0AUTH_CLIENT_SECRET, 
-    process.env.GOOGLE_0AUTH_REDIRECT_URI
-)
-
-oAuth2Client.setCredentials({refresh_token: process.env.GOOGLE_OAUTH_REFRESH_TOKEN})
-
-const sendEmail = async (options)=>{
-    try{
-        const accessToken = await oAuth2Client.getAccessToken()
-
+const sendEmail = async (options) => {
+    try {
+        // Create SMTP transporter
         const transport = nodemailer.createTransport({
-            service: 'gmail',
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: false, // true for 465, false for other ports
             auth: {
-                type: 'OAuth2',
-                user: process.env.GOOGLE_OAUTH_CLIENT_ID,
-                clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET,
-                refreshToken: process.env.GOOGLE_OAUTH_REFRESH_TOKEN,
-                accessToken: accessToken.token
+                user: process.env.SMTP_EMAIL,
+                pass: process.env.SMTP_PASSWORD
             }
-        })
+        });
 
         const mailOptions = {
-            from: `IndieVerse <${process.env.SMTP_EMAIL}>`,
+            from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL || process.env.SMTP_EMAIL}>`,
             to: options.email,
             subject: options.subject,
             html: options.html
-        }
+        };
 
-        await transport.sendMail(mailOptions)
-    }catch(err){
-        console.error('Email send error:', err)
-        throw new Error('Email could not be sent')
+        await transport.sendMail(mailOptions);
+    } catch(err) {
+        console.error('Email send error:', err);
+        throw new Error('Email could not be sent');
     }
-}
+};
 
-module.exports = sendEmail
+module.exports = sendEmail;
