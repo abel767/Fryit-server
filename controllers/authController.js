@@ -257,12 +257,8 @@ exports.googleCallback = async (req, res, next) => {
       const { accessToken, refreshToken, user: userData } = await generateTokens(user, res);
       
       // Redirect to frontend with tokens in url
-      res.redirect(
-        `${process.env.FRONTEND_URL}/auth/success?` + 
-        `accessToken=${accessToken}&` +
-        `refreshToken=${refreshToken}&` +
-        `user=${encodeURIComponent(JSON.stringify(userData))}`
-      );
+      const token = jwt.sign({id: user._id}, process.env.JWT_SECRET)
+      res.redirect(`${process.env.FRONTEND_URL}/dashboard?token=${token}`)
     } catch (err) {
       next(err);
     }
