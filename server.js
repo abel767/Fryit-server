@@ -9,7 +9,7 @@ const path = require('path');
 
 // Import routes 
 const authRoutes = require('./routes/authRoutes');
-
+const adminRoutes =require('./routes/adminRoutes')
 // Import database connection
 const connectDB = require('./config/db');
 
@@ -32,6 +32,7 @@ connectDB(); // Actually call the connectDB function
 
 // Routes 
 app.use('/api/auth', authRoutes);
+app.use('/api/admin',adminRoutes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
